@@ -1,6 +1,7 @@
 import pygame
 import os
 pygame.font.init()
+pygame.mixer.init()
 
 CWD = os.getcwd()
 WIDTH, HEIGHT = 1200, 700
@@ -19,9 +20,17 @@ SPACESHIP_WIDTH, SPACESHIP_HEIGHT = 55, 70
 RED_SPACESHIP_IMAGE = pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'red_spaceship.png'))
 RED_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(RED_SPACESHIP_IMAGE, (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)),0)
 GREEN_SPACESHIP_IMAGE = pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'green_spaceship.png'))
-GREEN_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(GREEN_SPACESHIP_IMAGE, (SPACESHIP_WIDTH, SPACESHIP_HEIGHT)),180)
+GREEN_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(GREEN_SPACESHIP_IMAGE, (23, 37)),180)
+ORANGE_SPACESHIP_IMAGE = pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'orange_spaceship.png'))
+ORANGE_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(ORANGE_SPACESHIP_IMAGE, (34, 48)),180)
+BLUE_SPACESHIP_IMAGE = pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'blue_spaceship.png'))
+BLUE_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(BLUE_SPACESHIP_IMAGE, (45, 51)),180)
+PURPLE_SPACESHIP_IMAGE = pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'purple_spaceship.png'))
+PURPLE_SPACESHIP = pygame.transform.rotate(pygame.transform.scale(PURPLE_SPACESHIP_IMAGE, (55, 70)),180)
 SPACE_IMG = pygame.transform.scale(pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'space.jpg')), (WIDTH, HEIGHT))
 HEART_IMG = pygame.transform.scale(pygame.image.load(os.path.join(CWD, 'Assets', 'img', 'heart.png')), (40, 40))
+BULLET_SOUND = pygame.mixer.Sound(os.path.join(CWD, 'Assets', 'sound', 'lazer.mp3'))
+EXPLOSION_SOUND = pygame.mixer.Sound(os.path.join(CWD, 'Assets', 'sound', 'explosion.ogg'))
 SPACESHIP_VEL = 5
 # BORDER = pygame.Rect(0, HEIGHT-300, WIDTH, 10)
 BORDER = pygame.Surface((WIDTH, 10))
@@ -77,7 +86,10 @@ def display_window(red, green, red_bullets, green_bullets, health, score):
     WIN.blit(BORDER, (BORDER_x, BORDER_y))
     # pygame.draw.rect(WIN, WHITE, BORDER)
     WIN.blit(RED_SPACESHIP, (red.x, red.y))
-    WIN.blit(GREEN_SPACESHIP, (green.x, green.y))
+    WIN.blit(GREEN_SPACESHIP, (20, 100))
+    WIN.blit(ORANGE_SPACESHIP, (50, 100))
+    WIN.blit(BLUE_SPACESHIP, (80, 100))
+    WIN.blit(PURPLE_SPACESHIP, (120, 100))
     WIN.blit(HEART_IMG, (40,35))
     health_text = FONT.render(f'{health}',1,WHITE)
     score_text = FONT.render('SCORE: '+f'{score}',1,WHITE)
@@ -116,18 +128,23 @@ def start_game():
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 run = False
+                pygame.quit()
+                return
 
             if event.type==pygame.KEYDOWN:
                 if event.key==pygame.K_LCTRL and len(red_bullets) < MAX_BULLETS:
                     bullet = pygame.Rect(red.x+red.width//2+1, red.y, 5, 7)
                     red_bullets.append(bullet)
+                    BULLET_SOUND.play()
 
                 if event.key==pygame.K_RCTRL and len(green_bullets) < MAX_BULLETS:
                     bullet = pygame.Rect(green.x+green.width//2+1, green.y+green.height, 5, 7)
                     green_bullets.append(bullet)
+                    BULLET_SOUND.play()
             
             if event.type==RED_HIT:
                 health -= 1
+                if health==0: EXPLOSION_SOUND.play()
             
             if event.type==GREEN_HIT:
                 score += 5
